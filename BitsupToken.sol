@@ -32,14 +32,14 @@ contract BitsupToken is StandardToken, Owned {
         if (_owner != 0x0) owner = _owner;
         startBlock = _startBlock;
         endBlock = _endBlock;
-        totalSupply = 10000 * 10**uint(decimals);
-        balances[owner] = totalSupply * founderAllocation / (1 ether);
+        total = 1000000000 * 10**uint(decimals);
+        balances[owner] = total * founderAllocation / (1 ether);
     }
     
     function reservedForFoundation(address _foundationAddress) public onlyOwner {
         require(_foundationAddress != 0x0 && isDistributedToFoundation == false);
         foundationAddress = _foundationAddress;
-        balances[foundationAddress] = totalSupply * foundationAllocation / (1 ether);
+        balances[foundationAddress] = total * foundationAllocation / (1 ether);
         isDistributedToFoundation = true;
     }
     
@@ -52,7 +52,7 @@ contract BitsupToken is StandardToken, Owned {
         require(!halted && msg.value >0);
         uint tokenNum = msg.value * price();
         distributedTokens += tokenNum;
-        require(distributedTokens <= totalSupply * (1 ether - foundationAllocation - founderAllocation) / (1 ether));
+        require(distributedTokens <= total * (1 ether - foundationAllocation - founderAllocation) / (1 ether));
         balances[msg.sender] = balances[msg.sender].add(tokenNum);
         owner.transfer(msg.value);
         Receive(msg.sender, msg.value);
@@ -69,7 +69,7 @@ contract BitsupToken is StandardToken, Owned {
     function burn(uint value) public returns (bool success) {
 	require(value > 0 && balances[msg.sender] >= value);
         balances[msg.sender] = balances[msg.sender].sub(value);
-        totalSupply = totalSupply.sub(value);
+        total = total.sub(value);
         Burn(msg.sender, value);
         return true;
     }

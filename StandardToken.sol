@@ -2,7 +2,7 @@ pragma solidity ^0.4.19;
 
 import "./SafeMath.sol";
 
-contract ERC20Token{
+interface ERC20Token{
     function totalSupply() public view returns (uint total);
 
     function balanceOf(address _owner) public view returns (uint balance);
@@ -22,9 +22,13 @@ contract ERC20Token{
 contract StandardToken is ERC20Token {
     using SafeMath for uint;
     
-    uint public totalSupply;
-    mapping (address => uint) balances;
-    mapping (address => mapping (address => uint)) allowed;
+    uint internal total;
+    mapping (address => uint) internal balances;
+    mapping (address => mapping (address => uint)) internal allowed;
+
+    function totalSupply() public view returns (uint) {
+        return total;
+    }
 
     function balanceOf(address _owner) public view returns (uint balance) {
         return balances[_owner];
