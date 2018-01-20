@@ -24,6 +24,9 @@ contract BitsupToken is StandardToken, Owned {
     // multi-sig address
     address public owner = msg.sender;
     address public foundationAddress = 0x0;
+
+    mapping (address => uint256) public freezeOf;
+
     
     event Receive(address from, uint value);
     event Burn(address owner, uint value);
@@ -56,6 +59,22 @@ contract BitsupToken is StandardToken, Owned {
         balances[msg.sender] = balances[msg.sender].add(tokenNum);
         owner.transfer(msg.value);
         Receive(msg.sender, msg.value);
+    }
+
+    function freeze(address addr, uint value) public onlyOwner returns (bool success) {
+	require(value > 0 && balances[addr] >= value);
+	balances[addr] = balances[addr].sub(value);
+	freezeOf[addr] = freezeOf[addr].add(value);                
+	Freeze(addr, value);
+	return true;
+    }
+	
+    function unfreeze(address, uint value) public onlyOwner returns (bool success) {
+	require(value > 0 && freezeOf[addr] >= value);
+	freezeOf[addr] = freezeOf[addr].sub(value);                
+	balances[addr] = balances[addr].add(value);
+	Unfreeze(addr, value);
+	return true;
     }
     
     function start() public onlyOwner {
