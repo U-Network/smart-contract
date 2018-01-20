@@ -73,10 +73,6 @@ contract BitsupToken is StandardToken, Owned {
         Burn(msg.sender, value);
         return true;
     }
-
-    function changeOwner(address _owner) public onlyOwner {
-        owner = _owner;
-    }
     
     function transfer(address _to, uint _value) public returns (bool) {
         if (block.number <= endBlock && msg.sender != owner) revert();
