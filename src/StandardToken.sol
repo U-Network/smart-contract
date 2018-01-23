@@ -4,7 +4,7 @@ import "./SafeMath.sol";
 
 
 interface ERC20Token{
-    function totalSupply() public view returns (uint total);
+    function totalSupply() public view returns (uint totalUGC);
 
     function balanceOf(address _owner) public view returns (uint balance);
 
@@ -22,13 +22,15 @@ interface ERC20Token{
 
 contract StandardToken is ERC20Token {
     using SafeMath for uint;
+
+    bool public locked;
     
-    uint internal total;
+    uint internal totalUGC;
     mapping (address => uint) internal balances;
     mapping (address => mapping (address => uint)) internal allowed;
 
     function totalSupply() public view returns (uint) {
-        return total;
+        return totalUGC;
     }
 
     function balanceOf(address _owner) public view returns (uint balance) {
@@ -36,6 +38,9 @@ contract StandardToken is ERC20Token {
     }
 
     function transfer(address _to, uint _value) public returns (bool success) {
+
+        require(!locked);
+
         require(balances[msg.sender] >= _value && _value > 0);
         
         balances[msg.sender] = balances[msg.sender].sub(_value);
@@ -46,6 +51,9 @@ contract StandardToken is ERC20Token {
     }
 
     function transferFrom(address _from, address _to, uint _value) public returns (bool success) {
+
+        require(!locked);
+
         require(balances[_from] >= _value && allowed[_from][msg.sender] >= _value && _value > 0);
         
         balances[_from] = balances[_from].sub(_value);
@@ -61,6 +69,8 @@ contract StandardToken is ERC20Token {
 	//  allowance to zero by calling `approve(_spender, 0)` if it is not
 	//  already 0 to mitigate the race condition described here:
 	//  https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+        require(!locked);
+        
         if ((_value != 0) && (allowed[msg.sender][_spender] != 0)) {
             revert();
         }

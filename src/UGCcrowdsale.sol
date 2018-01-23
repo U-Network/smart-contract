@@ -100,7 +100,7 @@ contract UGCcrowdSale {
 
         require(ugcAmount != 0);
 
-        require(ugcToken.transfer(msg.sender, ugcAmount));
+        require(ugcToken.issue(msg.sender, ugcAmount));
 
         balances[msg.sender] += msg.value;
 
