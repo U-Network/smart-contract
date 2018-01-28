@@ -9,12 +9,8 @@ contract BitsupToken is StandardToken, Owned {
     
     string public name = "Bitsup Token";
     string public symbol = "UGC";
-    uint8 public decimals = 18;
+    uint8  public decimals = 18;
     
-    uint public startBlock;
-    uint public endBlock;
-    
-    bool public halted = false;
     
     bool public isDistributedToFoundation = false; 
     uint public foundationAllocation = 5 * 10**16;  // 5% reserved for foundation
@@ -30,83 +26,67 @@ contract BitsupToken is StandardToken, Owned {
     
     event Receive(address from, uint value);
     event Burn(address owner, uint value);
+    event Freeze(address from, uint value);
+    event Unfreeze(address from, uint value);
 
-    function BitsupToken(address _owner, uint _startBlock, uint _endBlock) public {
-        if (_owner != 0x0) owner = _owner;
-        startBlock = _startBlock;
-        endBlock = _endBlock;
-        total = 1000000000 * 10**uint(decimals);
-        balances[owner] = total * founderAllocation / (1 ether);
-    }
-    
-    function reservedForFoundation(address _foundationAddress) public onlyOwner {
-        require(_foundationAddress != 0x0 && isDistributedToFoundation == false);
+    function BitsupToken(address _foundationAddress) public {
         foundationAddress = _foundationAddress;
-        balances[foundationAddress] = total * foundationAllocation / (1 ether);
-        isDistributedToFoundation = true;
+        totalUGC = 0;
+        locked = true;
     }
     
-    function price() public pure returns (uint) {
-        return 100;
+    /**
+     * Issues `_value` new tokens to `_recipient` (_value < 0 guarantees that tokens are never removed)
+     *
+     * @param _recipient The address to which the tokens will be issued
+     * @param _value The amount of new tokens to issue
+     * @return Whether the approval was successful or not
+     */
+    function issue(address _recipient, uint256 _value) onlyOwner public returns (bool success) {
+
+        // Guarantee positive 
+        require(_value > 0);
+
+        // Create tokens
+        balances[_recipient] += _value;
+        totalUGC += _value;
+
+        // Notify listners
+        Transfer(0, owner, _value);
+        Transfer(owner, _recipient, _value);
+
+        return true;
     }
     
-    function buy() public payable {
-        // require(block.number >= startBlock && block.number <= endBlock && !halted && msg.value >0);
-        require(!halted && msg.value >0);
-        uint tokenNum = msg.value * price();
-        distributedTokens += tokenNum;
-        require(distributedTokens <= total * (1 ether - foundationAllocation - founderAllocation) / (1 ether));
-        balances[msg.sender] = balances[msg.sender].add(tokenNum);
-        owner.transfer(msg.value);
-        Receive(msg.sender, msg.value);
-    }
 
     function freeze(address addr, uint value) public onlyOwner returns (bool success) {
-	require(value > 0 && balances[addr] >= value);
-	balances[addr] = balances[addr].sub(value);
-	freezeOf[addr] = freezeOf[addr].add(value);                
-	Freeze(addr, value);
-	return true;
+    	require(value > 0 && balances[addr] >= value);
+    	balances[addr] = balances[addr].sub(value);
+    	freezeOf[addr] = freezeOf[addr].add(value);                
+    	Freeze(addr, value);
+    	return true;
     }
 	
-    function unfreeze(address, uint value) public onlyOwner returns (bool success) {
-	require(value > 0 && freezeOf[addr] >= value);
-	freezeOf[addr] = freezeOf[addr].sub(value);                
-	balances[addr] = balances[addr].add(value);
-	Unfreeze(addr, value);
-	return true;
-    }
-    
-    function start() public onlyOwner {
-        halted = false;
-    }
-
-    function stop() public onlyOwner {
-        halted = true;
+    function unfreeze(address addr, uint value) public onlyOwner returns (bool success) {
+    	require(value > 0 && freezeOf[addr] >= value);
+    	freezeOf[addr] = freezeOf[addr].sub(value);                
+    	balances[addr] = balances[addr].add(value);
+    	Unfreeze(addr, value);
+	    return true;
     }
     
     function burn(uint value) public returns (bool success) {
-	require(value > 0 && balances[msg.sender] >= value);
+    	require(value > 0 && balances[msg.sender] >= value);
         balances[msg.sender] = balances[msg.sender].sub(value);
-        total = total.sub(value);
+        totalUGC = totalUGC.sub(value);
         Burn(msg.sender, value);
         return true;
     }
-
-    function changeOwner(address _owner) public onlyOwner {
-        owner = _owner;
-    }
     
-    function transfer(address _to, uint _value) public returns (bool) {
-        if (block.number <= endBlock && msg.sender != owner) revert();
-        return super.transfer(_to, _value);
+    function unlock() onlyOwner public returns (bool success){
+        locked = false;
+        return true;
     }
-    
-    function transferFrom(address _from, address _to, uint _value) public returns (bool) {
-       if (block.number <= endBlock && msg.sender != owner) revert();
-        return super.transferFrom(_from, _to, _value);
-    }
-
     function () public payable {
          revert();
     }
