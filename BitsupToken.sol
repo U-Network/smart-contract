@@ -138,9 +138,8 @@ contract BitsupToken is StandardToken, Owned {
     uint public distributedTokens = 0;              // availiable tokens
 
     // multi-sig address
-    address public owner = msg.sender;
-    address public foundationAddress = 0x0;
-
+    
+    address public creator;
     mapping (address => uint256) public freezeOf;
 
     
@@ -149,8 +148,8 @@ contract BitsupToken is StandardToken, Owned {
     event Freeze(address from, uint value);
     event Unfreeze(address from, uint value);
 
-    function BitsupToken(address _foundationAddress) public {
-        foundationAddress = _foundationAddress;
+    function BitsupToken() public {
+        creator = msg.sender;
         totalUGC = 0;
         locked = true;
     }
@@ -203,7 +202,8 @@ contract BitsupToken is StandardToken, Owned {
         return true;
     }
     
-    function unlock() onlyOwner public returns (bool success){
+    function unlock() public returns (bool success){
+        require(msg.sender == creator);
         locked = false;
         return true;
     }

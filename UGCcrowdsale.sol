@@ -61,7 +61,7 @@ contract UGCcrowdSale {
     function UGCcrowdSale(address _tokenAddress, address _beneficiary, uint256 _start) public {
     	ugcToken = BitsupToken(_tokenAddress);
     	beneficiary = _beneficiary;
-    	start = _start;
+    	start = now; //For testing purpose, need to change back to _start
     	end   = start + presalePeriod + preICOPeriod + ICOPeriod;
 
     }
