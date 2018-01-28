@@ -1,6 +1,8 @@
 pragma solidity ^0.4.19;
 
-import "./BitsupToken.sol";
+interface BitsupToken {
+    function issue (address receiver, uint amount) public returns (bool success);
+}
 
 contract UGCcrowdSale {
 	address public beneficiary; //Foundation address
@@ -120,7 +122,7 @@ contract UGCcrowdSale {
 
         uint256 ETHbalance = this.balance;
 
-        require(beneficiary.send(ETHbalance));
+        beneficiary.transfer(ETHbalance);
 
         GoalReached(beneficiary, ETHbalance);
     }
@@ -139,7 +141,7 @@ contract UGCcrowdSale {
 
         require(investedAmount > 0);
 
-        require(msg.sender.send(investedAmount));
+        msg.sender.transfer(investedAmount);
 
         balances[msg.sender] = 0;
      }
