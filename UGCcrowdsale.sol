@@ -6,8 +6,8 @@ interface BitsupToken {
 
 contract UGCcrowdSale {
 	address public beneficiary; //Foundation address
-	uint256 public softCap = 10000 ether; // Place holders for now
-    uint256 public hardCap = 100000 ether; // Place holders for now
+	uint256 public softCap = 10 ether; // Place holders for now
+    uint256 public hardCap = 50 ether; // Place holders for now
     uint256 public minAcceptedAmount = 1 ether; // Place holders for now
 
 
@@ -18,9 +18,9 @@ contract UGCcrowdSale {
     uint256 public rateICO = 1;
 
     //Dummy values for different stage length in days
-    uint256 public presalePeriod = 1 days;
-    uint256 public preICOPeriod = 1 days;
-    uint256 public ICOPeriod = 1 days;
+    uint256 public presalePeriod = 2 minutes;
+    uint256 public preICOPeriod = 2 minutes;
+    uint256 public ICOPeriod = 2 minutes;
 
     // Crowdsale state
     uint256 public start;
@@ -64,6 +64,15 @@ contract UGCcrowdSale {
     	start = now; //For testing purpose, need to change back to _start
     	end   = start + presalePeriod + preICOPeriod + ICOPeriod;
 
+    }
+
+    /**
+     * For testing purposes
+     *
+     * @return The beneficiary address
+     */
+    function confirmBeneficiary() public view onlyBeneficiary returns(address confirmedAddr)  {
+        return msg.sender;
     }
     /**
      * Internal function that calculates UGC amount given the current rate
