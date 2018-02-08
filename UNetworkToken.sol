@@ -22,7 +22,7 @@ contract Owned {
     }
 }
 
-contract UUUToken is Owned {
+contract UNetworkToken is Owned {
     // Public variables of the token
     string public name;
     string public symbol;
@@ -45,11 +45,11 @@ contract UUUToken is Owned {
      *
      * Initializes contract with initial supply tokens to the creator of the contract
      */
-    function UUUToken(
+    function UNetworkToken(
     ) public {
         totalSupply = 10 ** 10 * 10 ** uint256(decimals);  // Update total supply with the decimal amount
         balanceOf[msg.sender] = totalSupply;                // Give the creator all initial tokens
-        name = "UUUToken";                                   // Set the name for display purposes
+        name = "UNetworkToken";                                   // Set the name for display purposes
         symbol = "UUU";                               // Set the symbol for display purposes
     }
 
