@@ -47,7 +47,7 @@ contract UUUToken is Owned {
      */
     function UUUToken(
     ) public {
-        totalSupply = 10 ** 11 * 10 ** uint256(decimals);  // Update total supply with the decimal amount
+        totalSupply = 10 ** 10 * 10 ** uint256(decimals);  // Update total supply with the decimal amount
         balanceOf[msg.sender] = totalSupply;                // Give the creator all initial tokens
         name = "UUUToken";                                   // Set the name for display purposes
         symbol = "UUU";                               // Set the symbol for display purposes
