@@ -1,43 +1,39 @@
 
 pragma solidity ^0.4.19;
 
-interface UNetworkToken {
+contract UNetworkToken {
     function transfer(address _to, uint256 _value) public;
+    mapping (address => uint256) public balanceOf;
 }
 
+contract TokenTimelock {
 
-contract Fund {
+  UNetworkToken UUU;
 
-	UNetworkToken UUU;
-	address public owner;
+  // beneficiary of tokens after they are released
+  address public beneficiary;
 
-	//Unix epoch time for Saturday, September 1, 2018 12:00:00 AM GMT
-	uint public first_release = 1535760000;
-	//Unix epoch time for Friday, March 1, 2019 12:00:00 AM GMT
-	uint public second_release = 1551398400;
-	//Set to true after withdraw first half;
-	bool public first_release_cashed = false;
-	//Set to true after second relase;
-	bool public second_release_cashed = false;
+  // timestamp when token release is enabled
+  uint256 public releaseTime;
 
-	//Amount to release in regular units. 
-	uint256 public release_amount = 0;
+  function TokenTimelock(address _beneficiary, uint256 _releaseTime) public {
+    // solium-disable-next-line security/no-block-members
+    require(_releaseTime > block.timestamp);
+    UUU = UNetworkToken(0x3543638eD4a9006E4840B105944271Bcea15605D);
+    beneficiary = _beneficiary;
+    releaseTime = _releaseTime;
+  }
 
-	function Fund() public {
-		UUU = UNetworkToken(0x3543638eD4a9006E4840B105944271Bcea15605D);
-		owner = msg.sender;
-	}
+  /**
+   * @notice Transfers tokens held by timelock to beneficiary.
+   */
+  function release() public {
+    // solium-disable-next-line security/no-block-members
+    require(block.timestamp >= releaseTime);
 
-	//TEST WITH UNITS && TEST ON MAIN NET WITH SMALL AMOUNT OF UUU. 
-	function release() public {
-		require (msg.sender == owner);
-		if (now > first_release && !first_release_cashed) {
-			UUU.transfer(owner, release_amount * 10 ** 18);
-			first_release_cashed = true;
-		}
-		if (now > second_release && !second_release_cashed){
-			UUU.transfer(owner, release_amount * 10 ** 18);
-			second_release_cashed = true;
-		}
-	}
+    uint256 amount = UUU.balanceOf(this);
+    require(amount > 0);
+
+    UUU.transfer(beneficiary, amount);
+  }
 }
