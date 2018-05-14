@@ -16,10 +16,10 @@ contract TokenTimelock {
   // timestamp when token release is enabled
   uint256 public releaseTime;
 
-  function TokenTimelock(address _beneficiary, uint256 _releaseTime) public {
+  function TokenTimelock(address _tokenAddr, address _beneficiary, uint256 _releaseTime) public {
     // solium-disable-next-line security/no-block-members
     require(_releaseTime > block.timestamp);
-    UUU = UNetworkToken(0x3543638eD4a9006E4840B105944271Bcea15605D);
+    UUU = UNetworkToken(_tokenAddr);
     beneficiary = _beneficiary;
     releaseTime = _releaseTime;
   }
