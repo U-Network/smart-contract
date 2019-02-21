@@ -160,6 +160,6 @@ contract Tube is Ownable {
     }
 
     function () external payable {
-        require(msg.sender == owner(), "You're not owner of this contract.");
+    //    require(msg.sender == owner(), "You're not owner of this contract.");
     }
 }
