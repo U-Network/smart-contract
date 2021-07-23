@@ -1,28 +1,41 @@
-
 pragma solidity ^0.4.19;
 
-interface UNetworkToken {
-    function transfer (address receiver, uint amount) public;
+contract Ownable {
+  address public owner;
+
+  function Ownable() public {
+    owner = msg.sender;
+  }
+
+  modifier onlyOwner() {
+    require(msg.sender == owner);
+    _;
+  }
 }
 
+interface Token {
+  function balanceOf(address _owner) public constant returns (uint256 );
+  function transfer(address _to, uint256 _value) public ;
+  event Transfer(address indexed _from, address indexed _to, uint256 _value);
+}
 
-contract AirDrop {
+contract AirDrip is Ownable {
 
-	UNetworkToken UUU;
-	address[] recipients;
-	uint256[] values;
+    function AirTransfer(address[] _recipients, uint _values, address _tokenAddress) onlyOwner public returns (bool) {
+        require(_recipients.length > 0);
 
-	
-	function AirDrop(address _tokenAddress, address[] _recipients, uint256[] _values) public {
-		require(_recipients.length == _values.length);
-		UUU = UNetworkToken(_tokenAddress);
-		recipients = _recipients;
-		values = _values;
-	}
+        Token token = Token(_tokenAddress);
 
-	function drop() public {
-	    for (uint256 i = 0; i < recipients.length; i++) {
-	    	UUU.transfer(recipients[i], values[i] * 10 ** 18);
-	    }
-	}
+        for(uint j = 0; j < _recipients.length; j++){
+            token.transfer(_recipients[j], value);
+        }
+
+        return true;
+    }
+
+     function withdrawalToken(address _tokenAddress) onlyOwner public {
+        Token token = Token(_tokenAddress);
+        token.transfer(owner, token.balanceOf(this));
+    }
+
 }
